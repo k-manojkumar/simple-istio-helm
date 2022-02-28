@@ -1,0 +1,54 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: ingress-gateway-configuration
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*"      # myistioapp.kmk   # Domain name of the external website
+---
+kind: VirtualService
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: simpleapp-appui
+  namespace: sampleistio-ns
+spec:
+  hosts:      # which incoming host are we applying the proxy rules to???
+    - "*"      # myistioapp.kmk
+  gateways:
+    - ingress-gateway-configuration
+  http:
+  - match:
+    - uri:
+        prefix: /
+    route:
+    - destination:
+        port:
+          number: 7800
+        host: simpleapp-simpleapp-appui
+---
+kind: VirtualService
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: simpleapp-appms
+  namespace: sampleistio-ns
+spec:
+  hosts:      # which incoming host are we applying the proxy rules to???
+    - "*"      # myistioapp.kmk
+  gateways:
+    - ingress-gateway-configuration
+  http:
+  - match:
+    - uri:
+        prefix: /DevOpsService
+    route:
+    - destination:
+        port:
+          number: 7801
+        host: simpleapp-simpleapp-appms
